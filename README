@@ -1,0 +1,52 @@
+Este projeto é uma simulação de "corrida" utilizando a biblioteca pthreads em C. O objetivo principal é demonstrar na prática conceitos fundamentais de concorrência, condições de corrida (race conditions) e sincronização utilizando Mutex e Barreiras.
+
+O programa cria múltiplas threads que competem para chegar ao número 100. Dependendo da função escolhida, a corrida pode ser perfeitamente justa e sincronizada ou uma verdadeira "várzea pura".
+
+-------------------------------------------------------------------------------------------------------------
+
+O projeto já conta com um Makefile configurado para compilar o código usando gcc com a flag -pthread.
+
+Para compilar, abra o terminal no diretório do projeto e digite: make
+Para executar o simulador: ./main
+Para limpar os arquivos compilados: make clean 
+
+-------------------------------------------------------------------------------------------------------------
+
+Ao rodar o programa, você poderá escolher entre 5 estilos diferentes de corrida. Cada um ilustra um cenário diferente de concorrência em Sistemas Operacionais:
+
+Corrida Padrão (corridaPadrao)
+
+Como funciona: Cada thread possui seu próprio contador de 1 a 100.
+O Problema: A variável global ganhador não possui proteção (Mutex). Isso significa que duas ou mais threads podem chegar ao 100 ao mesmo tempo e ambas imprimirem que venceram.
+
+------
+
+Corrida Padrão com Mutex no Ganhador (corridaPadraoMutexVerificacaoGanhador)
+
+Como funciona: Semelhante à anterior (contadores locais), mas o acesso à variável ganhador é protegido por um pthread_mutex.
+
+O Resultado: Garante que apenas a primeira thread que chegar a 100 consiga se declarar a vencedora, evitando empates impossíveis.
+
+-----
+
+Contador Compartilhado Sem Mutex (corridaComContadorCompartilhadoSemMutex)
+
+Como funciona: A famosa "várzea pura". Todas as threads tentam incrementar a mesma variável global contador ao mesmo tempo, sem nenhuma sincronização.
+
+O Problema: Uma clássica Race Condition. Os números vão pular, threads vão sobrescrever o incremento das outras e a corrida pode até passar do limite de 100 sem um vencedor claro.
+
+-----
+
+ontador Compartilhado com Mutex no Ganhador (corridaComContadorCompartilhadoComMutexGanhador)
+
+Como funciona: O incremento do contador global ainda ocorre sem proteção, mas a checagem da variável ganhador é protegida.
+
+O Resultado: O contador ainda sofre com a condição de corrida (dados inconsistentes), mas a declaração do vencedor é segura.
+
+-----
+
+Contador Compartilhado com Mutex Total (corridaComContadorCompartilhadoComMutexTotal)
+
+Como funciona: O incremento do contador global e a verificação do vencedor ocorrem dentro da zona crítica protegida pelo Mutex.
+
+O Resultado: Sincronização perfeita. Apenas uma thread por vez consegue ler, somar e checar o contador. É a forma mais segura, embora transforme a execução paralela em algo mais "sequencial" (gargalo de performance).
